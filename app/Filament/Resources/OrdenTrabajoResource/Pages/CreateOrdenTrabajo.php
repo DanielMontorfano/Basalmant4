@@ -10,6 +10,6 @@ class CreateOrdenTrabajo extends CreateRecord
 {
     protected static string $resource = OrdenTrabajoResource::class;
     
-
+    
 
 }

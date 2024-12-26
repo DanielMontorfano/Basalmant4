@@ -22,13 +22,7 @@ class EditOrdenTrabajo extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
-    protected function getTitle(): string
-{
-    return $this->record
-        ? 'Editar Orden de Trabajo: ' . $this->record->id
-        : 'Editar Orden de Trabajo';
-}
-
+    
 
 
 }
