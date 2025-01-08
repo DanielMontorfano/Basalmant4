@@ -24,7 +24,7 @@ class OrdenTrabajoResource extends Resource
                 ->default(fn () => Auth::check() ? Auth::user()->name : null)
                 ->required(),
             Forms\Components\Select::make('asignadoA')
-                ->label('Destinatario')
+                ->label('Destinatariosssssssssssssssssssssssss')
                 ->options(\App\Models\User::pluck('name', 'id'))
                 ->searchable()
                 ->required(),

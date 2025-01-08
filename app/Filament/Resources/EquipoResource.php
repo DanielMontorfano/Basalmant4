@@ -130,78 +130,77 @@ class EquipoResource extends Resource
                     }),
 //*********************************************************************************************************** */
 
-                    Action::make('OrdenDeTrabajo')
-                    ->label('Abrir y Cerrar orden de trabajo')
-                    ->icon('heroicon-o-home')
-                    ->color('success')
-                    ->tooltip('Crea una orden de trabajo a este equipo')
-                    ->form([
-                        
-                        Forms\Components\Tabs::make('ordenTrabajoTabs')
-                            ->tabs([
+Action::make('OrdenDeTrabajo')
+    ->label('Abrir y Cerrar orden de trabajo')
+    ->icon('heroicon-o-home')
+    ->color('success')
+    ->tooltip('Crea una orden de trabajo a este equipo')
+    ->form([
+        Forms\Components\Tabs::make('ordenTrabajoTabs')
+            ->tabs([
+                Forms\Components\Tabs\Tab::make('Cerrar órdenes')
+                    ->schema([
+                        // Aquí puedes agregar campos si es necesario
+                    ]),
 
-                                Forms\Components\Tabs\Tab::make('Cerrar órdenes')
-                                ->schema([
-                                    
-                                ]),
-                                
-                                Forms\Components\Tabs\Tab::make('Listado de órdenes')
-                                ->schema([
-                                    
-                                ]),
+                Forms\Components\Tabs\Tab::make('Listado de órdenes')
+                    ->schema([
+                        // Aquí puedes agregar campos si es necesario
+                    ]),
 
-                                Forms\Components\Tabs\Tab::make('Abrir Orden')
-                                    ->schema([
-                                        Forms\Components\TextInput::make('solicitante')
-                                            ->label('Solicitante')
-                                            ->default(Auth::user()->name)
-                                            ->required()
-                                            ->disabled(),
-                                        Forms\Components\Select::make('asignadoA')
-                                            ->label('Destinatario')
-                                            ->options(\App\Models\User::pluck('name', 'id'))
-                                            ->searchable()
-                                            ->required(),
-                                        Forms\Components\DatePicker::make('fechaNecesidad')
-                                            ->label('Fecha de necesidad')
-                                            ->required(),
-                                        Forms\Components\Select::make('prioridad')
-                                            ->label('Prioridad')
-                                            ->options([
-                                                'alta' => 'Alta',
-                                                'media' => 'Media',
-                                                'baja' => 'Baja',
-                                            ])
-                                            ->required(),
-                                        Forms\Components\Textarea::make('det1')
-                                            ->label('Detalles')
-                                            ->maxLength(500),
-                                    ]),
-                                
-                                
+                Forms\Components\Tabs\Tab::make('Abrir Orden')
+                    ->schema([
+                        Forms\Components\TextInput::make('solicitante')
+                            ->label('Solicitante')
+                            ->default(Auth::user()->name)
+                            ->required()
+                            ->readonly(),
+                        Forms\Components\Select::make('asignadoA')
+                            ->label('Destinatario')
+                            ->options(\App\Models\User::pluck('name', 'id'))
+                            ->searchable()
+                            ->required(),
+                        Forms\Components\DatePicker::make('fechaNecesidad')
+                            ->label('Fecha de necesidad')
+                            ->required(),
+                        Forms\Components\Select::make('prioridad')
+                            ->label('Prioridad')
+                            ->options([
+                                'alta' => 'Alta',
+                                'media' => 'Media',
+                                'baja' => 'Baja',
+                            ])
+                            ->required(),
+                        Forms\Components\Textarea::make('det1')
+                            ->label('Detalles')
+                            ->maxLength(500),
+                    ]),
+            ]),
+    ])
+    ->action(function (array $data, $record) { // $record es el equipo actual
+        // Obtener el nombre del usuario asignado
+         $asignadoNombre = \App\Models\User::find($data['asignadoA'])->name ?? 'Usuario desconocido';
 
+        // Proporcionar valores predeterminados
+        $dataToInsert = [
+            'equipo_id' => $record->id, // ID del equipo actual
+            'solicitante' => $data['solicitante'],
+            'asignadoA' => $asignadoNombre, // Guardar el nombre del usuario
+            'fechaNecesidad' => $data['fechaNecesidad'],
+            'prioridad' => $data['prioridad'],
+            'det1' => $data['det1'],
+        ];
 
+        // Crear la orden de trabajo
+        \App\Models\OrdenTrabajo::create($dataToInsert);
 
-                                
-                            ]),
-                    ])
-                    ->action(function (array $data, $record) {
-                        \App\Models\OrdenTrabajo::create([
-                            'equipo_id' => $record->id,
-                            'solicitante' => Auth::user()->name,
-                            'fechaNecesidad' => $data['fechaNecesidad'],
-                            'prioridad' => $data['prioridad'],
-                            'det1' => $data['det1'],
-                        ]);
-                
-                        return Notification::make()
-                            ->title('Orden creada')
-                            ->body('La orden de trabajo ha sido creada correctamente.')
-                            ->success();
-                    }),
-                
-
-
+        // Usar notificación de Filament
+        return \Filament\Notifications\Notification::make()
+            ->title('Orden creada')
+            ->body('La orden de trabajo ha sido creada correctamente.')
+            ->success()
+            ->send();
+    }),
 
     //******************************************************************************************************************** */
                         Action::make('verTodasOrdenes')
